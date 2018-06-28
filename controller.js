@@ -10,7 +10,7 @@
     .controller('MainController', MainController);
 
     /* @ngInject */
-    function MainController($scope, FacetHandler, dbpediaService, facetUrlStateHandlerService) {
+    function MainController($scope, FacetHandler, sgovService, facetUrlStateHandlerService) {
         var vm = this;
 
         var updateId = 0;
@@ -34,7 +34,7 @@
         });
 
         // Get the facet configurations from dbpediaService.
-        vm.facets = dbpediaService.getFacets();
+        vm.facets = sgovService.getFacets();
         // Initialize the facet handler
         vm.handler = new FacetHandler(getFacetOptions());
 
@@ -45,7 +45,7 @@
 
         // Setup the FacetHandler options.
         function getFacetOptions() {
-            var options = dbpediaService.getFacetOptions();
+            var options = sgovService.getFacetOptions();
             options.scope = $scope;
 
             // Get initial facet values from URL parameters (refresh/bookmark) using facetUrlStateHandlerService.
@@ -77,7 +77,7 @@
             facetUrlStateHandlerService.updateUrlParams(facetSelections);
 
             // The dbpediaService returns a (promise of a) pager object.
-            return dbpediaService.getResults(facetSelections)
+            return sgovService.getResults(facetSelections)
             .then(function(pager) {
                 if (uid === updateId) {
                     vm.pager = pager;

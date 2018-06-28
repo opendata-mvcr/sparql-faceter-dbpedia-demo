@@ -4,7 +4,7 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1">
-<title>SPARQL Faceter</title>
+<title>Sémantický slovník pojmů</title>
 
 <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="bower_components/sparql-faceter/dist/semantic-faceted-search.css">
@@ -18,50 +18,56 @@
   <div class="container-fluid" ng-controller="MainController as vm">
     <div class="row">
       <div class="col-md-12">
-        <h1>DBpedia Writers</h1>
+        <h1>Sémantický slovník pojmů</h1>
         <div ng-if="vm.error">
           <uib-alert type="danger">{{ vm.error }}</uib-alert>
         </div>
-      </div>
+      </div
     </div>
     <div class="row">
-      <div class="col-md-2">
+      <div class="col-md-3">
         <!-- Facets are defined here using the configurations defined in the controller -->
-        <seco-text-facet data-options="vm.facets.name"></seco-text-facet>
-        <seco-basic-facet data-options="vm.facets.genre"></seco-basic-facet>
-        <seco-basic-facet data-options="vm.facets.birthPlace"></seco-basic-facet>
-        <seco-basic-facet data-options="vm.facets.citizenship"></seco-basic-facet>
+        <seco-text-facet data-options="vm.facets.pojem"></seco-text-facet>
+        <seco-basic-facet data-options="vm.facets.glosar"></seco-basic-facet>
+        <seco-basic-facet data-options="vm.facets.typ"></seco-basic-facet>
       </div>
 
       <!-- Results view -->
-      <div class="col-md-10">
+      <div class="col-md-9">
         <img src="images/loading-lg.gif" ng-show="vm.isLoadingResults" />
         <table class="table">
           <thead>
             <tr>
-              <th>Writer</th>
-              <th>Abstract / Works</th>
-              <th>Birth Place</th>
-              <th>Notable Work</th>
+              <th>Pojem</th>
+              <th>Informace</th>
+              <th>Glosář</th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="writer in vm.page">
-              <td style="width:21%">
-                <p>
-                <a ng-href="{{ writer.wikipediaLink || writer.id }}">{{ writer.name }}</a>
-                  <span ng-if="writer.birthDate || writer.deathDate">({{ (writer.birthDate|date) || '?' }} - {{ writer.deathDate|date }})</span>
-                </p>
-                <img ng-if="writer.depiction" class="img img-responsive"
-                  ng-src="{{ writer.depiction }}" />
+            <tr ng-repeat="pojem in vm.page">
+              <td style="width:20%">
+                <a ng-href="{{ pojem.id }}">{{ pojem.nazev }}</a> 
+              </td>
+              <td style="width:50%">
+                typ: <a ng-href="{{ pojem.typ.id }}">{{ pojem.typ.id }}</a> 
+		<p ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvlastnosti">
+		typy vlastností:
+                 	<ul ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvlastnosti">
+			<li ng-repeat="typvlastnosti in vm.makeArray(pojem.typvlastnosti)">
+			    <a ng-href="{{ typvlastnosti.id }}">{{ typvlastnosti.nazev }}</a>
+			</li>
+			</ul></p>
+		<p ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvztahu">
+		typy vztahů:
+                 	<ul ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvztahu">
+			<li ng-repeat="typvztahu in vm.makeArray(pojem.typvztahu)">
+			    <a ng-href="{{ typvztahu.id }}">{{ typvztahu.nazev }}</a>
+			</li>
+		</ul></p>
               </td>
               <td>
-                <p>{{ writer.abstract }}</p>
-                <p><span ng-repeat="work in vm.makeArray(writer.work)">
-                  <a ng-href="{{ work.link }}">{{ work.label }}</span></p>
+                 <a ng-href="{{ pojem.glosar.id }}">{{ pojem.glosar.nazev }}</a>
               </td>
-              <td>{{ writer.birthPlace }}</td>
-              <td>{{ writer.notableWork.join(", ") || writer.notableWork }}</td>
             </tr>
           </tbody>
         </table>
@@ -88,15 +94,14 @@
 <script src="bower_components/lodash/dist/lodash.min.js"></script>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-<!-- <script src="bower_components/spin.js/spin.js"></script> -->
-<script src="bower_components/angular-spinner/dist/angular-spinner.min.js"></script>
 <script src="bower_components/checklist-model/checklist-model.js"></script>
+<script src="bower_components/angular-spinner/dist/angular-spinner.min.js"></script>
 <script src="bower_components/angular-paging-sparql-service/dist/sparql-service.js"></script>
 <script src="bower_components/sparql-faceter/dist/semantic-faceted-search.js"></script>
-<script src="bower_components/chart.js/dist/Chart.js"></script>
+<script src="bower_components/chart.js/dist/Chart.min.js"></script>
 <script src="bower_components/angular-chart.js/dist/angular-chart.js"></script>
 
-<script src="dbpedia-service.js"></script>
-<script src="demo-controller.js"></script>
+<script src="service.js"></script>
+<script src="controller.js"></script>
 </body>
 </html>

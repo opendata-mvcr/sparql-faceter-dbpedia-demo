@@ -8,13 +8,13 @@
     angular.module('facetApp', ['seco.facetedSearch'])
 
     /*
-     * DBpedia service
+     * RPP service
      * Handles SPARQL queries and defines facet configurations.
      */
-    .service('dbpediaService', dbpediaService);
+    .service('sgovService', sgovService);
 
     /* @ngInject */
-    function dbpediaService(FacetResultHandler) {
+    function sgovService(FacetResultHandler) {
 
         /* Public API */
 
@@ -36,37 +36,30 @@
         // If 'enabled' is not true, the facet will be disabled by default.
         var facets = {
             // Text search facet for names
-            name: {
-                facetId: 'name',
-                predicate:'<http://www.w3.org/2000/01/rdf-schema#label>',
+            pojem: {
+                facetId:  'pojem',
+                predicate: '<http://www.w3.org/2004/02/skos/core#prefLabel>',
                 enabled: true,
-                name: 'Name'
+                name: 'Pojem'
             },
-            // Basic facets
-            genre: {
-                facetId: 'genre',
-                predicate: '<http://dbpedia.org/ontology/genre>',
+            glosar: {
+                facetId: 'glosar',
+                predicate:'<http://www.w3.org/2004/02/skos/core#inScheme>/<http://www.w3.org/2000/01/rdf-schema#label>',
                 enabled: true,
-                name: 'Genre'
+                name: 'Glosář'
             },
-            birthPlace: {
-                facetId: 'birthPlace',
-                predicate:'<http://dbpedia.org/ontology/birthPlace>',
+	    typ: {
+                facetId:  'typ',
+                predicate: 'a',
                 enabled: true,
-                name: 'Birth Place'
+                name: 'Typ'
             },
-            citizenship: {
-                facetId: 'citizenship',
-                predicate: '<http://dbpedia.org/ontology/citizenship>',
-                enabled: true,
-                name: 'Citizenship'
-            }
         };
 
-        var endpointUrl = 'http://dbpedia.org/sparql';
+        var endpointUrl = 'https://ssp.opendata.cz/sparql';
 
         // We are building a faceted search for writers.
-        var rdfClass = '<http://dbpedia.org/ontology/Writer>';
+        var rdfClass = '<http://www.w3.org/2004/02/skos/core#Concept>';
 
         // The facet configuration also accept a 'constraint' option.
         // The value should be a valid SPARQL pattern.
@@ -83,16 +76,16 @@
         var facetOptions = {
             endpointUrl: endpointUrl, // required
             rdfClass: rdfClass, // optional
-            usePost: false,
             // constraint: constraint, // optional, not used in this demo
-            preferredLang : 'en' // required
+            preferredLang : 'cs' // required
         };
 
         var prefixes =
         ' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-        ' PREFIX dbp: <http://dbpedia.org/property/>' +
-        ' PREFIX dbo: <http://dbpedia.org/ontology/>' +
-        ' PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
+        ' PREFIX skos: <http://www.w3.org/2004/02/skos/core#>' +
+        ' PREFIX zs: <https://ssp.opendata.cz/slovník/základní/pojem/>'  +
+        ' PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
+
 
         // This is the result query, with <RESULT_SET> as a placeholder for
         // the result set subquery that is formed from the facet selections.
@@ -107,48 +100,27 @@
         var queryTemplate =
         ' SELECT * WHERE {' +
         '  <RESULT_SET> ' +
+	' { ?id a skos:Concept .' +
         '  OPTIONAL { '+
-        '   ?id rdfs:label ?name . ' +
-        '   FILTER(langMatches(lang(?name), "en")) ' +
+        '   ?id skos:prefLabel ?nazev . ' +
         '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbp:birthDate ?birthDate . ' +
+        '  OPTIONAL { '+
+        '   ?id a ?typ__id . ' +
+        '   FILTER(?typ__id != skos:Concept) ' +
+	'   OPTIONAL { ?typvlastnosti__id rdfs:domain ?id . ?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev ; a zs:typ-vlastnosti . FILTER(?typ__id = zs:typ-objektu) }' +
+	'   OPTIONAL { ?typvztahu__id rdfs:domain ?id . ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu . FILTER(?typ__id = zs:typ-objektu) }' +
         '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbp:deathDate ?deathDate . ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbo:thumbnail ?depiction . ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?work__id dbo:author ?id ; ' +
-        '    rdfs:label ?work__label ; ' +
-        '    foaf:isPrimaryTopicOf ?work__link . ' +
-        '   FILTER(langMatches(lang(?work__label), "en")) ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?id foaf:isPrimaryTopicOf ?wikipediaLink . ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbp:birthPlace ?birthPlace . ' +
-        '   FILTER(langMatches(lang(?birthPlace), "en")) ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbo:abstract ?abstract . ' +
-        '   FILTER(langMatches(lang(?abstract), "en")) ' +
-        '  }' +
-        '  OPTIONAL { ' +
-        '   ?id dbo:notableWork/rdfs:label ?notableWork . ' +
-        '   FILTER(langMatches(lang(?notableWork), "en")) ' +
-        '  }' +
+        '  OPTIONAL {'+
+        '    ?id skos:inScheme ?glosar__id . ' +
+        '    ?glosar__id rdfs:label ?glosar__nazev . ' +
+        '  }}' +
         ' }';
 
         var resultOptions = {
             prefixes: prefixes, // required if the queryTemplate uses prefixes
             queryTemplate: queryTemplate, // required
-            resultsPerPage: 10, // optional (default is 10)
-            pagesPerQuery: 1, // optional (default is 1)
-            usePost: false,
+            resultsPerPage: 1000, // optional (default is 10)
+            pagesPerQuery: 10, // optional (default is 1)
             paging: true // optional (default is true), if true, enable paging of the results
         };
 
@@ -169,7 +141,7 @@
                 // first page of results.
                 return pager.getTotalCount().then(function(count) {
                     pager.totalCount = count;
-                    return pager.getPage(0);
+                    return pager;
                 }).then(function() {
                     return pager;
                 });
