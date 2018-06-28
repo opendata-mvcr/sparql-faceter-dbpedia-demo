@@ -1,8 +1,6 @@
-# SPARQL Faceter DBpedia demo
+# SPARQL Faceter for Semantic Government Vocabulary
 
-[SPARQL Faceter](https://github.com/SemanticComputing/angular-semantic-faceted-search) demo using DBpedia.
-
-[Try it here](http://semanticcomputing.github.io/sparql-faceter-dbpedia-demo/#)
+The project is based on the [SPARQL Faceter](https://github.com/SemanticComputing/angular-semantic-faceted-search) demo using DBpedia.
 
 # Installation
 
