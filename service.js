@@ -56,7 +56,7 @@
             },
         };
 
-        var endpointUrl = 'https://ssp.opendata.cz/sparql';
+        var endpointUrl = 'https://slovnik.gov.cz/sparql';
 
         // We are building a faceted search for writers.
         var rdfClass = '<http://www.w3.org/2004/02/skos/core#Concept>';
