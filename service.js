@@ -44,7 +44,8 @@
             },
             glosar: {
                 facetId: 'glosar',
-                predicate:'<http://www.w3.org/2004/02/skos/core#inScheme>/<http://www.w3.org/2000/01/rdf-schema#label>',
+//                predicate:'<http://www.w3.org/2004/02/skos/core#inScheme>/<http://www.w3.org/2000/01/rdf-schema#label>',
+                predicate:'<http://www.w3.org/2004/02/skos/core#inScheme>',
                 enabled: true,
                 name: 'Glosář'
             },
@@ -56,9 +57,7 @@
             },
         };
 
-        var endpointUrl = 'https://slovnik.gov.cz/sparql';
-
-        // We are building a faceted search for writers.
+        var endpointUrl = 'https://slovnik.gov.cz/sparql/';
         var rdfClass = '<http://www.w3.org/2004/02/skos/core#Concept>';
 
         // The facet configuration also accept a 'constraint' option.
@@ -83,7 +82,7 @@
         var prefixes =
         ' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
         ' PREFIX skos: <http://www.w3.org/2004/02/skos/core#>' +
-        ' PREFIX zs: <https://slovnik.gov.cz/slovník/základní/pojem/>'  +
+        ' PREFIX zs: <https://slovnik.gov.cz/základní/pojem/>'  +
         ' PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
 
 
@@ -97,15 +96,27 @@
         // an object. I.e. here ?work__id, ?work__label, and ?work__link will be
         // combined into an object:
         // writer.work = { id: '[work id]', label: '[work label]', link: '[work link]' }
+        var lang = facetOptions.preferredLang;
         var queryTemplate =
         ' SELECT * WHERE {' +
         '  <RESULT_SET> ' +
-	' { ?id a skos:Concept .' +
+      	' { ?id a skos:Concept .' +
+
+
         '  OPTIONAL { '+
         '   ?id skos:prefLabel ?nazev . ' +
+        '   FILTER(lang(?nazev)="'+lang+'")' +
         '  }' +
+
+        '  OPTIONAL { '+
+        '   ?id skos:definition ?definice . ' +
+        '   FILTER(lang(?nazev)="'+lang+'")' +
+        '  }' +
+
         '  OPTIONAL { '+
         '   ?id a ?typ__id . ' +
+        '   OPTIONAL {?typ__id skos:prefLabel ?typ__nazev . ' +
+        '   FILTER(lang(?typ__nazev) = "'+lang+'") }' +
         '   FILTER(?typ__id != skos:Concept) ' +
 	'   OPTIONAL { ?typvlastnosti__id rdfs:domain ?id . ?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev ; a zs:typ-vlastnosti . FILTER(?typ__id = zs:typ-objektu) }' +
 	'   OPTIONAL { ?typvztahu__id rdfs:domain ?id . ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu . FILTER(?typ__id = zs:typ-objektu) }' +
@@ -113,6 +124,7 @@
         '  OPTIONAL {'+
         '    ?id skos:inScheme ?glosar__id . ' +
         '    ?glosar__id rdfs:label ?glosar__nazev . ' +
+        '    FILTER(lang(?glosar__nazev)="'+lang+'")' +
         '  }}' +
         ' }';
 
