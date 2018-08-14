@@ -57,7 +57,7 @@
             },
         };
 
-        var endpointUrl = 'https://slovnik.gov.cz/sparql/';
+        var endpointUrl = 'https://slovnik.gov.cz/sparql';
         var rdfClass = '<http://www.w3.org/2004/02/skos/core#Concept>';
 
         // The facet configuration also accept a 'constraint' option.
@@ -96,7 +96,7 @@
         // an object. I.e. here ?work__id, ?work__label, and ?work__link will be
         // combined into an object:
         // writer.work = { id: '[work id]', label: '[work label]', link: '[work link]' }
-        var lang = facetOptions.preferredLang;
+        var lang = 'cs';
         var queryTemplate =
         ' SELECT * WHERE {' +
         '  <RESULT_SET> ' +
