@@ -6,15 +6,10 @@
 
     // Module definition, note the dependency.
     angular.module('facetApp', ['seco.facetedSearch'])
-
-    /*
-     * RPP service
-     * Handles SPARQL queries and defines facet configurations.
-     */
-    .service('sgovService', sgovService);
+      .service('service', service);
 
     /* @ngInject */
-    function sgovService(FacetResultHandler) {
+    function service(FacetResultHandler) {
 
         /* Public API */
 
@@ -25,7 +20,7 @@
         // Get the facet options.
         this.getFacetOptions = getFacetOptions;
 
-        /* Implementation */
+        // Get the facet options.
 
         // Facet definitions
         // 'facetId' is a "friendly" identifier for the facet,
@@ -49,7 +44,7 @@
                 enabled: true,
                 name: 'Glosář'
             },
-	    typ: {
+            typ: {
                 facetId:  'typ',
                 predicate: 'a',
                 enabled: true,
@@ -76,17 +71,29 @@
             endpointUrl: endpointUrl, // required
             rdfClass: rdfClass, // optional
             // constraint: constraint, // optional, not used in this demo
-            preferredLang : 'cs' // required
+            preferredLang : null // required
         };
 
         var prefixes =
         ' PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
         ' PREFIX skos: <http://www.w3.org/2004/02/skos/core#>' +
         ' PREFIX zs: <https://slovnik.gov.cz/základní/pojem/>'  +
-        ' PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';
+        ' PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>';     
 
+        var resultOptions = {
+            prefixes: prefixes, // required if the queryTemplate uses prefixes
+            queryTemplate: null, // required
+            resultsPerPage: 1000, // optional (default is 10)
+            pagesPerQuery: 10, // optional (default is 1)
+            paging: true // optional (default is true), if true, enable paging of the results
+        };
 
-        // This is the result query, with <RESULT_SET> as a placeholder for
+        // FacetResultHandler is a service that queries the endpoint with
+        // the query and maps the results to objects.
+        //     var resultHandler = new FacetResultHandler(endpointUrl, resultOptions);
+
+        function getQueryTemplate(lang) {
+	// This is the result query, with <RESULT_SET> as a placeholder for
         // the result set subquery that is formed from the facet selections.
         // The variable names used in the query will be the property names of
         // the reusulting mapped objects.
@@ -96,13 +103,10 @@
         // an object. I.e. here ?work__id, ?work__label, and ?work__link will be
         // combined into an object:
         // writer.work = { id: '[work id]', label: '[work label]', link: '[work link]' }
-        var lang = 'cs';
-        var queryTemplate =
-        ' SELECT * WHERE {' +
+	return ' SELECT * WHERE {' +
         '  <RESULT_SET> ' +
-      	' { ?id a skos:Concept .' +
-
-
+      	'  ?id a skos:Concept .' +
+        
         '  OPTIONAL { '+
         '   ?id skos:prefLabel ?nazev . ' +
         '   FILTER(lang(?nazev)="'+lang+'")' +
@@ -117,37 +121,37 @@
         '   ?id a ?typ__id . ' +
         '   OPTIONAL {?typ__id skos:prefLabel ?typ__nazev . ' +
         '   FILTER(lang(?typ__nazev) = "'+lang+'") }' +
-        '   FILTER(?typ__id != skos:Concept) ' +
-	'   OPTIONAL { ?typvlastnosti__id rdfs:domain ?id . ?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev ; a zs:typ-vlastnosti . FILTER(?typ__id = zs:typ-objektu) }' +
-	'   OPTIONAL { ?typvztahu__id rdfs:domain ?id . ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu . FILTER(?typ__id = zs:typ-objektu) }' +
-        '  }' +
+        '   FILTER(?typ__id not in (skos:Concept,owl:Class)) ' +
+      	'  }'+
+        
+        '  OPTIONAL { ?typvlastnosti__id rdfs:domain ?id . ' +
+        '          OPTIONAL{?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev . }}' +
+
+      	'  OPTIONAL { ?typvztahu__id rdfs:domain ?id . ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu . }' +
+
         '  OPTIONAL {'+
         '    ?id skos:inScheme ?glosar__id . ' +
-        '    ?glosar__id rdfs:label ?glosar__nazev . ' +
-        '    FILTER(lang(?glosar__nazev)="'+lang+'")' +
-        '  }}' +
+        '    OPTIONAL { ?glosar__id rdfs:label ?glosar__nazev . ' +
+        '    FILTER(lang(?glosar__nazev)="'+lang+'")}' +
+        '  }' +
         ' }';
+        }
 
-        var resultOptions = {
-            prefixes: prefixes, // required if the queryTemplate uses prefixes
-            queryTemplate: queryTemplate, // required
-            resultsPerPage: 1000, // optional (default is 10)
-            pagesPerQuery: 10, // optional (default is 1)
-            paging: true // optional (default is true), if true, enable paging of the results
-        };
-
-        // FacetResultHandler is a service that queries the endpoint with
-        // the query and maps the results to objects.
-        var resultHandler = new FacetResultHandler(endpointUrl, resultOptions);
 
         // This function receives the facet selections from the controller
         // and gets the results from DBpedia.
         // Returns a promise.
-        function getResults(facetSelections) {
+        function getResults(facetSelections,lang) {
             // If there are variables used in the constraint option (see above),
             // you can also give getResults another parameter that is the sort
             // order of the results (as a valid SPARQL ORDER BY sequence, e.g. "?id").
             // The results are sorted by URI (?id) by default.
+          
+            resultOptions.queryTemplate = getQueryTemplate(lang);
+
+            var resultHandler = new FacetResultHandler(endpointUrl, resultOptions);
+          
+          
             return resultHandler.getResults(facetSelections).then(function(pager) {
                 // We'll also query for the total number of results, and load the
                 // first page of results.
@@ -166,7 +170,8 @@
         }
 
         // Getter for the facet options.
-        function getFacetOptions() {
+        function getFacetOptions(lang) {
+	    facetOptions.preferredLang = lang;
             return facetOptions;
         }
     }

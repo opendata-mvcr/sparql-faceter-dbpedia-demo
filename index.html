@@ -20,6 +20,12 @@
         <div ng-if="vm.error">
           <uib-alert type="danger">{{ vm.error }}</uib-alert>
         </div>
+        <div>
+          <a id="cs" href ng-click="vm.setLang('cs')">cs</a>-
+          <a id="en" href ng-click="vm.setLang('en')">en</a>
+          ({{vm.lang}})
+        </div>
+        </div>
       </div
     </div>
     <div class="row">
@@ -29,7 +35,6 @@
         <seco-basic-facet data-options="vm.facets.glosar"></seco-basic-facet>
         <seco-basic-facet data-options="vm.facets.typ"></seco-basic-facet>
       </div>
-
       <!-- Results view -->
       <div class="col-md-9">
         <img src="images/loading-lg.gif" ng-show="vm.isLoadingResults" />
@@ -42,44 +47,43 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="pojem in vm.page">
+            <tr ng-repeat="pojem in vm.page">              
               <td style="width:20%">
-                <p ng-if="pojem.nazev">
-                  <a ng-href="{{ pojem.id }}">{{ pojem.nazev }}</a> 
-                </p>             
-                <p ng-if="!pojem.nazev">
-                  <a ng-href="{{ pojem.id }}">{{ pojem.id }}</a> 
+                <p ng-if="pojem">
+                  <a ng-href="{{ pojem.id }}">{{ getLabel(pojem) }}</a> 
                 </p>             
               </td>
               <td style="width:50%">
-                <p ng-if="pojem.typ.id">
-                  je <a ng-href="{{ pojem.typ.id }}">{{ pojem.typ.nazev }}</a> 
+
+                <p ng-if="pojem.typ">
+                je instancí typu <span ng-repeat="typ in (isArray(pojem.typ) ? pojem.typ : [pojem.typ])"><a ng-href="{{ typ.id }}">{{ getLabel(typ)}}</a><span ng-if="!$last">,&nbsp;</span></span>
+                </p>
                 </p>
 
                 <p ng-if="pojem.definice" style="font-style:italic">
                  ☛ {{ pojem.definice }}
                 </p>
 
-                <p ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvlastnosti">
+                <p ng-if="pojem.typvlastnosti">
               		má vlastnosti typu
-                 	<ul ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvlastnosti">
+                 	<ul ng-if="pojem.typvlastnosti">
               			<li ng-repeat="typvlastnosti in vm.makeArray(pojem.typvlastnosti)">
-            			    <a ng-href="{{ typvlastnosti.id }}">{{ typvlastnosti.nazev }}</a>
+            			    <a ng-href="{{ typvlastnosti.id }}">{{ getLabel(typvlastnosti) }}</a>
               			</li>
             			</ul>
                 </p>
 
-            		<p ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvztahu">
+            		<p ng-if="pojem.typvztahu">
               		má vztahy typu
-                 	<ul ng-if="pojem.typ.id.includes('typ-objektu') && pojem.typvztahu">
+                 	<ul ng-if="pojem.typvztahu">
               			<li ng-repeat="typvztahu in vm.makeArray(pojem.typvztahu)">
-            			    <a ng-href="{{ typvztahu.id }}">{{ typvztahu.nazev }}</a>
+            			    <a ng-href="{{ typvztahu.id }}">{{ getLabel(typvztahu) }}</a>
               			</li>
               		</ul>
                 </p>
               </td>
               <td>
-                 <a ng-href="{{ pojem.glosar.id }}">{{ pojem.glosar.nazev }}</a>
+                 <a ng-href="{{ pojem.glosar.id }}">{{ getLabel(pojem.glosar) }}</a>
               </td>
             </tr>
           </tbody>

@@ -10,19 +10,22 @@
     .controller('MainController', MainController);
 
     /* @ngInject */
-    function MainController($scope, FacetHandler, sgovService, facetUrlStateHandlerService) {
+    function MainController($scope, FacetHandler, service, facetUrlStateHandlerService) {
         var vm = this;
 
         var updateId = 0;
+
+        vm.lang = 'cs';
 
         // page is the current page of results.
         vm.page = [];
         vm.pageNo = 0;
         vm.getPage = getPage;
-        vm.makeArray = makeArray;
+        vm.makeArray = makeArray;    
+        vm.setLang = setLang;
 
         vm.disableFacets = disableFacets;
-
+        $scope.isArray = angular.isArray;
         // Listen for the facet events
         // This event is triggered when a facet's selection has changed.
         $scope.$on('sf-facet-constraints', updateResults);
@@ -32,11 +35,20 @@
             // Only listen once, then unregister
             initListener();
         });
-
+        
+        $scope.getLabel = (o) => o.nazev ? o.nazev : o.id;
+        
         // Get the facet configurations from dbpediaService.
-        vm.facets = sgovService.getFacets();
+        vm.facets = service.getFacets();
         // Initialize the facet handler
-        vm.handler = new FacetHandler(getFacetOptions());
+        vm.handler = new FacetHandler(getFacetOptions(vm.lang));
+
+        function setLang(lang) {
+          vm.lang = lang;
+	  updateResults(null,vm.facetSelections);
+	  vm.facets = service.getFacets();
+	  vm.handler = new FacetHandler(getFacetOptions(vm.lang));
+        }
 
         // Disable the facets while reusults are being retrieved.
         function disableFacets() {
@@ -45,7 +57,7 @@
 
         // Setup the FacetHandler options.
         function getFacetOptions() {
-            var options = sgovService.getFacetOptions();
+            var options = service.getFacetOptions(vm.lang);
             options.scope = $scope;
 
             // Get initial facet values from URL parameters (refresh/bookmark) using facetUrlStateHandlerService.
@@ -56,6 +68,7 @@
 
         // Get results based on facet selections (each time the selections change).
         function updateResults(event, facetSelections) {
+	    vm.facetSelections = facetSelections;
             // As the facets are not locked while the results are loading,
             // this function may be called again before the results have been
             // retrieved. This creates a race condition where the later call
@@ -77,7 +90,7 @@
             facetUrlStateHandlerService.updateUrlParams(facetSelections);
 
             // The dbpediaService returns a (promise of a) pager object.
-            return sgovService.getResults(facetSelections)
+            return service.getResults(facetSelections,vm.lang)
             .then(function(pager) {
                 if (uid === updateId) {
                     vm.pager = pager;
