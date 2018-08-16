@@ -52,7 +52,7 @@
             },
         };
 
-        var endpointUrl = 'https://slovnik.gov.cz/sparql';
+        var endpointUrl = 'https://slovník.gov.cz/sparql';
         var rdfClass = '<http://www.w3.org/2004/02/skos/core#Concept>';
 
         // The facet configuration also accept a 'constraint' option.
