@@ -123,11 +123,23 @@
         '   FILTER(lang(?typ__nazev) = "'+lang+'") }' +
         '   FILTER(?typ__id not in (skos:Concept,owl:Class)) ' +
       	'  }'+
-        
-        '  OPTIONAL { ?typvlastnosti__id rdfs:domain ?id . ' +
-        '          OPTIONAL{?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev . }}' +
 
-      	'  OPTIONAL { ?typvztahu__id rdfs:domain ?id . ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu . }' +
+        // UNCOMMENT FOR COMPACT
+        
+        '  OPTIONAL { ?typvlastnosti__id ((rdfs:domain|(rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)?))) ?id . ' +
+        '          ?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev ; a zs:typ-vlastnosti .}' +
+        '  OPTIONAL { ?typvztahu__id ((rdfs:domain|(rdfs:domain/(owl:unionOf/rdf:rest*/rdf:first)?))) ?id . ' +
+       '          ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu .}' +
+        // UNCOMMENT FOR COMPACT
+
+        // UNCOMMENT FOR FULL
+//      '  OPTIONAL { ?typvlastnosti__id (rdfs:subClassOf/owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
+//      '          ?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev ; a zs:typ-vlastnosti .}' +
+//
+//      '  OPTIONAL { ?typvztahu__id (rdfs:subClassOf/owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
+//      '          ?typvztahu__id skos:prefLabel ?typvztahu__nazev ; a zs:typ-vztahu .}' +
+        // END UNCOMMENT
+
 
         '  OPTIONAL {'+
         '    ?id skos:inScheme ?glosar__id . ' +
