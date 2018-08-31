@@ -23,6 +23,7 @@
         vm.getPage = getPage;
         vm.makeArray = makeArray;    
         vm.setLang = setLang;
+        vm.i18n = i18n;
 
         vm.disableFacets = disableFacets;
         $scope.isArray = angular.isArray;
@@ -124,6 +125,44 @@
 
         function makeArray(val) {
             return angular.isArray(val) ? val : [val];
+        }
+
+        function i18n(l) {
+          const i18n = {
+            'prohlizec-semantickeho-slovniku-pojmu' : {
+              'cs' : 'Prohlížeč sémantického slovníku pojmů',
+              'en' : 'Semantic Government Vocabulary Explorer'
+            },
+            'pojem' : {
+              'cs' : 'Pojem',
+              'en' : 'Term'
+            },
+            'informace' : {
+              'cs' : 'Informace',
+              'en' : 'Information'
+            },
+            'glosar' : {
+              'cs' : 'Glosář',
+              'en' : 'Glossary'
+            },
+            'je-specializaci' : {
+              'cs' : 'je specializací',
+              'en' : 'specializes'
+            },
+            'je-instanci-typu' : {
+              'cs' : 'je instancí typu',
+              'en' : 'has type'
+            },
+            'ma-vlastnosti-typu' : {
+              'cs' : 'má vlastnosti typu',
+              'en' : 'has intrinsic trope types'
+            },
+            'ma-vztahy-typu' : {
+              'cs' : 'má vztahy typu',
+              'en' : 'has relation types'
+            }
+          };      
+          return i18n[l][vm.lang];
         }
     }
 })();

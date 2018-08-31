@@ -16,7 +16,7 @@
   <div class="container-fluid" ng-controller="MainController as vm">
     <div class="row">
       <div class="col-md-12">
-        <h1>Prohlížeč sémantického slovníku pojmů</h1>
+        <h1>{{vm.i18n('prohlizec-semantickeho-slovniku-pojmu')}}</h1>
         <div ng-if="vm.error">
           <uib-alert type="danger">{{ vm.error }}</uib-alert>
         </div>
@@ -41,9 +41,9 @@
         <table class="table">
           <thead>
             <tr>
-              <th>Pojem</th>
-              <th>Informace</th>
-              <th>Glosář</th>
+              <th>{{vm.i18n('pojem')}}</th>
+              <th>{{vm.i18n('informace')}}</th>
+              <th>{{vm.i18n('glosar')}}</th>
             </tr>
           </thead>
           <tbody>
@@ -55,17 +55,19 @@
               </td>
               <td style="width:50%">
 
+                <p ng-if="pojem.nadtyp">
+                {{vm.i18n('je-specializaci')}} <span ng-repeat="nadtyp in (isArray(pojem.nadtyp) ? pojem.nadtyp : [pojem.nadtyp])"><a ng-href="{{ nadtyp.id }}">{{ getLabel(nadtyp)}}</a><span ng-if="!$last">,&nbsp;</span></span></p>
+
                 <p ng-if="pojem.typ">
-                je instancí typu <span ng-repeat="typ in (isArray(pojem.typ) ? pojem.typ : [pojem.typ])"><a ng-href="{{ typ.id }}">{{ getLabel(typ)}}</a><span ng-if="!$last">,&nbsp;</span></span>
-                </p>
+                {{vm.i18n('je-instanci-typu')}} <span ng-repeat="typ in (isArray(pojem.typ) ? pojem.typ : [pojem.typ])"><a ng-href="{{ typ.id }}">{{ getLabel(typ)}}</a><span ng-if="!$last">,&nbsp;</span></span>
                 </p>
 
                 <p ng-if="pojem.definice" style="font-style:italic">
-                 ☛ {{ pojem.definice }}
+                  ☛ {{ pojem.definice }}
                 </p>
 
                 <p ng-if="pojem.typvlastnosti">
-              		má vlastnosti typu
+                  {{vm.i18n('ma-vlastnosti-typu')}}}
                  	<ul ng-if="pojem.typvlastnosti">
               			<li ng-repeat="typvlastnosti in vm.makeArray(pojem.typvlastnosti)">
             			    <a ng-href="{{ typvlastnosti.id }}">{{ getLabel(typvlastnosti) }}</a>
@@ -74,7 +76,7 @@
                 </p>
 
             		<p ng-if="pojem.typvztahu">
-              		má vztahy typu
+                  {{vm.i18n('ma-vztahy-typu')}}
                  	<ul ng-if="pojem.typvztahu">
               			<li ng-repeat="typvztahu in vm.makeArray(pojem.typvztahu)">
             			    <a ng-href="{{ typvztahu.id }}">{{ getLabel(typvztahu) }}</a>
