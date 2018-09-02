@@ -114,7 +114,7 @@
 
         '  OPTIONAL { '+
         '   ?id skos:definition ?definice . ' +
-        '   FILTER(lang(?nazev)="'+lang+'")' +
+        '   FILTER(lang(?definice)="'+lang+'")' +
         '  }' +
 
         '  OPTIONAL { '+
