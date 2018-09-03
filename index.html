@@ -69,7 +69,7 @@
                 </p>
 
                 <p ng-if="pojem.typvlastnosti">
-                  {{vm.i18n('ma-vlastnosti-typu')}}}
+                  {{vm.i18n('ma-vlastnosti-typu')}}
                  	<ul ng-if="pojem.typvlastnosti">
               			<li ng-repeat="typvlastnosti in vm.makeArray(pojem.typvlastnosti)">
             			    <a ng-href="{{ typvlastnosti.id }}">{{ getLabel(typvlastnosti) }}</a>
