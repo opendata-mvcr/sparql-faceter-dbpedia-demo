@@ -141,8 +141,8 @@
 
         // UNCOMMENT FOR FULL
       '  OPTIONAL { ?typvlastnosti__id rdfs:subClassOf ?r2 . ' +
-            ' ?r1 (owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
-            ' ?r1 owl:onProperty zs:je-vlastností . ' + 
+            ' ?r2 (owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
+            ' ?r2 owl:onProperty zs:je-vlastností . ' + 
 //      '          ?typvlastnosti__id  a zs:typ-vlastnosti . ' +
       '         OPTIONAL {?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev . FILTER(lang(?typvlastnosti__nazev) = "'+lang+'") } '+
       '  }' +
