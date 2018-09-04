@@ -140,15 +140,17 @@
         // UNCOMMENT FOR COMPACT
 
         // UNCOMMENT FOR FULL
-      '  OPTIONAL { ?typvlastnosti__id (rdfs:subClassOf/owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
-      '          ?typvlastnosti__id  a zs:typ-vlastnosti . ' +
+      '  OPTIONAL { ?typvlastnosti__id rdfs:subClassOf ?r2 . ' +
+            ' ?r1 (owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
+            ' ?r1 owl:onProperty zs:je-vlastností . ' + 
+//      '          ?typvlastnosti__id  a zs:typ-vlastnosti . ' +
       '         OPTIONAL {?typvlastnosti__id skos:prefLabel ?typvlastnosti__nazev . FILTER(lang(?typvlastnosti__nazev) = "'+lang+'") } '+
       '  }' +
 
       '  OPTIONAL { ?typvztahu__id rdfs:subClassOf ?r1. ' +
                         ' ?r1 owl:onProperty zs:má-vztažený-prvek-1 . ' +
             ' ?r1 (owl:allValuesFrom/(owl:unionOf/rdf:rest*/rdf:first)?) ?id . ' +
-      '          ?typvztahu__id a zs:typ-vztahu . ' +
+//      '          ?typvztahu__id a zs:typ-vztahu . ' +
       '          OPTIONAL { ?typvztahu__id skos:prefLabel ?typvztahu__nazev . FILTER(lang(?typvztahu__nazev) = "'+lang+'") } '+
       '  } ' +
         // END UNCOMMENT
